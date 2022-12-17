@@ -5,12 +5,34 @@ import java.util.Random;
 
 public class Main {
     public static void main(String[] args) {
-        Integer indexes = 100_000;
+        IntegerList integerList = new IntegerList(2);
+        integerList.add(0);
+        integerList.add(2);
+        System.out.println(integerList.size());
+        integerList.toExpand();
+        System.out.println(integerList.size());
+        integerList.add(5);
+        System.out.println(integerList.size());
+        integerList.remove(2);
+        System.out.println(integerList.size());
+        integerList.addPlus(-1);
+        System.out.println(integerList.size());
+        integerList.addPlus(-5);
+        System.out.println(integerList.size());
+
+
+        System.out.println(integerList);
+        integerList.sortInsertion();
+        System.out.println(integerList);
+
+        System.out.println(integerList.contains(-6));
+
+        /*Integer indexes = 100_000;
         Integer[] arrBubble = createArr(indexes);
         Integer[] arrInsertion = Arrays.copyOf(arrBubble,indexes);
         Integer[] arrSelection = Arrays.copyOf(arrBubble,indexes);
         sortBubble(arrBubble);
-        sortSelection(arrInsertion);
+        sortSelection(arrInsertion);*/
         //sortInsertion(arrSelection);
     }
 

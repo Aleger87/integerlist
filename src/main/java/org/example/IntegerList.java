@@ -23,7 +23,11 @@ public class IntegerList implements IntegerListInterface{
                 return item;
             }
         }
-        throw new IndexOutOfBoundsException("В массиве нет свободной ячейки воспользуйтесь методом addPlus");
+        throw new IndexOutOfBoundsException("В массиве нет свободной ячейки воспользуйтесь методом addPlus или расширьте массив с помощью метода toExpand");
+    }
+
+    public void toExpand() {
+        grow();
     }
 
 
@@ -42,6 +46,7 @@ public class IntegerList implements IntegerListInterface{
         for (int i = 0; i < array.length; i++) {
             if (array[i] == null) {
                 array[i] = item;
+                size++;
             }
         }
         return array;
@@ -98,9 +103,8 @@ public class IntegerList implements IntegerListInterface{
 
     @Override
     public boolean contains(Integer item) {
-        Integer[] integersCopy = toArray();
-        sortInsertion(integersCopy);
-        return binarySearch(integersCopy, item);
+        sortInsertion();
+        return binarySearch(integers, item);
     }
 
     @Override
@@ -169,16 +173,17 @@ public class IntegerList implements IntegerListInterface{
         }
     }
 
-   public static void sortInsertion(Integer[] arr) {
-        for (int i = 1; i < arr.length; i++) {
-            int temp = arr[i];
-            int j = i;
-            while (j > 0 && arr[j - 1] >= temp) {
-                arr[j] = arr[j - 1];
-                j--;
-            }
-            arr[j] = temp;
-        }
+    public  void sortInsertion() {
+//        for (int i = 1; i < arr.length; i++) {
+//            int temp = arr[i];
+//            int j = i;
+//            while (j > 0 && arr[j - 1] >= temp) {
+//                arr[j] = arr[j - 1];
+//                j--;
+//            }
+//            arr[j] = temp;
+//        }
+        quickSort(integers, 0, integers.length-1);
     }
 
     private boolean binarySearch(Integer[] arr, Integer item) {
@@ -199,5 +204,41 @@ public class IntegerList implements IntegerListInterface{
             }
         }
         return false;
+    }
+
+    private void grow() {
+        int s = size + size / 2;
+        integers = Arrays.copyOf(integers, s);
+        size = s;
+    }
+
+    public static void quickSort(Integer[] arr, int begin, int end) {
+        if (begin < end) {
+            int partitionIndex = partition(arr, begin, end);
+
+            quickSort(arr, begin, partitionIndex - 1);
+            quickSort(arr, partitionIndex + 1, end);
+        }
+    }
+
+    private static int partition(Integer[] arr, int begin, int end) {
+        int pivot = arr[end];
+        int i = (begin - 1);
+
+        for (int j = begin; j < end; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+
+                swapElements(arr, i, j);
+            }
+        }
+
+        swapElements(arr, i + 1, end);
+        return i + 1;
+    }
+    private static void swapElements(Integer[] arr, int left, int right) {
+        int temp = arr[left];
+        arr[left] = arr[right];
+        arr[right] = temp;
     }
 }
