@@ -7,23 +7,27 @@ import java.util.Objects;
 
 public class IntegerList implements IntegerListInterface{
     private int size;
-    private Integer[] Integers;
+    private Integer[] integers;
     private boolean result = false;
 
     public IntegerList(int size) {
         this.size = size;
-        this.Integers = new Integer[size];
+        this.integers = new Integer[size];
     }
 
     @Override
     public Integer add(Integer item) {
-        for (int i = 0; i < Integers.length; i++) {
-            if (Integers[i] == null) {
-                Integers[i] = item;
+        for (int i = 0; i < integers.length; i++) {
+            if (integers[i] == null) {
+                integers[i] = item;
                 return item;
             }
         }
-        throw new IndexOutOfBoundsException("В массиве нет свободной ячейки воспользуйтесь методом addPlus");
+        throw new IndexOutOfBoundsException("В массиве нет свободной ячейки воспользуйтесь методом addPlus или расширьте массив с помощью метода toExpand");
+    }
+
+    public void toExpand() {
+        grow();
     }
 
 
@@ -31,7 +35,7 @@ public class IntegerList implements IntegerListInterface{
         try {
             add(item);
         } catch (IndexOutOfBoundsException e) {
-            Integers = refactorArrayAdd(Integers, item);
+            integers = refactorArrayAdd(integers, item);
         }
 
         return item;
@@ -42,6 +46,7 @@ public class IntegerList implements IntegerListInterface{
         for (int i = 0; i < array.length; i++) {
             if (array[i] == null) {
                 array[i] = item;
+                size++;
             }
         }
         return array;
@@ -50,7 +55,7 @@ public class IntegerList implements IntegerListInterface{
     @Override
     public Integer add(int index, Integer item) {
         checkIndexOutOfBoundsException(index);
-        this.Integers[index] = item;
+        this.integers[index] = item;
         return item;
     }
 
@@ -64,9 +69,9 @@ public class IntegerList implements IntegerListInterface{
 
     @Override
     public Integer remove(Integer item) {
-        for (int i = 0; i < Integers.length; i++) {
-            if (Integers[i].equals(item)) {
-                Integers[i] = null;
+        for (int i = 0; i < integers.length; i++) {
+            if (integers[i].equals(item)) {
+                integers[i] = null;
                 return item;
             }
         }
@@ -75,12 +80,12 @@ public class IntegerList implements IntegerListInterface{
 
     public Integer removeMinus(Integer item) {
         remove(item);
-        Integers = refactorArrayRemove(item);
+        integers = refactorArrayRemove(item);
         return item;
     }
 
     private Integer[] refactorArrayRemove(Integer item) {
-        List<Integer> arrayList = new ArrayList<>(Arrays.stream(Integers).toList());
+        List<Integer> arrayList = new ArrayList<>(Arrays.stream(integers).toList());
         arrayList.removeIf(Objects::isNull);
         Integer[] array = new Integer[arrayList.size()];
         arrayList.toArray(array);
@@ -91,23 +96,21 @@ public class IntegerList implements IntegerListInterface{
 
     public Integer remove(int index) {
         checkIndexOutOfBoundsException(index);
-        Integer item = Integers[index];
-        Integers[index] = null;
+        Integer item = integers[index];
+        integers[index] = null;
         return item;
     }
 
     @Override
     public boolean contains(Integer item) {
-
-        Integer[] storageCopy = toArray();
-        Arrays.stream(storageCopy).sorted();
-        return binarySearch(storageCopy, item);
+        sortInsertion();
+        return binarySearch(integers, item);
     }
 
     @Override
     public int indexOf(Integer item) {
-        for (int i = 0; i < Integers.length; i++) {
-            if (Integers[i].equals(item)) {
+        for (int i = 0; i < integers.length; i++) {
+            if (integers[i].equals(item)) {
                 return i;
             }
         }
@@ -116,8 +119,8 @@ public class IntegerList implements IntegerListInterface{
 
     @Override
     public int lastIndexOf(Integer item) {
-        for (int i = Integers.length - 1; i > 0; i--) {
-            if (Integers[i].equals(item)) {
+        for (int i = integers.length - 1; i > 0; i--) {
+            if (integers[i].equals(item)) {
                 return i;
             }
         }
@@ -127,12 +130,12 @@ public class IntegerList implements IntegerListInterface{
     @Override
     public Integer get(int index) {
         checkIndexOutOfBoundsException(index);
-        return Integers[index];
+        return integers[index];
     }
 
     @Override
     public boolean equals(IntegerList otherList) {
-        if (otherList != null || otherList.equals(Integers)) {
+        if (otherList != null || otherList.equals(integers)) {
             return true;
         }
         throw new NullPointerException();
@@ -150,14 +153,19 @@ public class IntegerList implements IntegerListInterface{
 
     @Override
     public void clear() {
-        Arrays.fill(Integers, null);
+        Arrays.fill(integers, null);
     }
 
     @Override
     public Integer[] toArray() {
-        return new Integer[0];
+        return Arrays.copyOf(integers, size);
     }
 
+
+    @Override
+    public String toString() {
+        return Arrays.toString(integers);
+    }
 
     private void checkIndexOutOfBoundsException(int index) {
         if (index > size - 1) {
@@ -165,16 +173,17 @@ public class IntegerList implements IntegerListInterface{
         }
     }
 
-    public static void sortInsertion(Integer[] arr) {
-        for (int i = 1; i < arr.length; i++) {
-            int temp = arr[i];
-            int j = i;
-            while (j > 0 && arr[j - 1] >= temp) {
-                arr[j] = arr[j - 1];
-                j--;
-            }
-            arr[j] = temp;
-        }
+    public  void sortInsertion() {
+//        for (int i = 1; i < arr.length; i++) {
+//            int temp = arr[i];
+//            int j = i;
+//            while (j > 0 && arr[j - 1] >= temp) {
+//                arr[j] = arr[j - 1];
+//                j--;
+//            }
+//            arr[j] = temp;
+//        }
+        quickSort(integers, 0, integers.length-1);
     }
 
     private boolean binarySearch(Integer[] arr, Integer item) {
@@ -184,7 +193,7 @@ public class IntegerList implements IntegerListInterface{
         while (min <= max) {
             int mid = (min + max) / 2;
 
-            if (item == arr[mid]) {
+            if (item.intValue() == arr[mid]) {
                 return true;
             }
 
@@ -195,5 +204,41 @@ public class IntegerList implements IntegerListInterface{
             }
         }
         return false;
+    }
+
+    private void grow() {
+        int s = size + size / 2;
+        integers = Arrays.copyOf(integers, s);
+        size = s;
+    }
+
+    public static void quickSort(Integer[] arr, int begin, int end) {
+        if (begin < end) {
+            int partitionIndex = partition(arr, begin, end);
+
+            quickSort(arr, begin, partitionIndex - 1);
+            quickSort(arr, partitionIndex + 1, end);
+        }
+    }
+
+    private static int partition(Integer[] arr, int begin, int end) {
+        int pivot = arr[end];
+        int i = (begin - 1);
+
+        for (int j = begin; j < end; j++) {
+            if (arr[j] <= pivot) {
+                i++;
+
+                swapElements(arr, i, j);
+            }
+        }
+
+        swapElements(arr, i + 1, end);
+        return i + 1;
+    }
+    private static void swapElements(Integer[] arr, int left, int right) {
+        int temp = arr[left];
+        arr[left] = arr[right];
+        arr[right] = temp;
     }
 }
